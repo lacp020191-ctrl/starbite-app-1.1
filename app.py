@@ -1,10 +1,10 @@
-
 from flask import Flask, render_template, request, redirect, send_file
 import pandas as pd
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
+import os
 
-app = Flask(__name__)
+app = Flask(_name_)
 clientes = []
 
 @app.route('/')
@@ -55,16 +55,16 @@ def reportes():
     plt.bar(estados, totales, color=['green','orange','red'])
     plt.title("Reporte financiero")
     plt.ylabel("Monto total")
-    plt.savefig("reporte.png")
+    plt.savefig("static/reporte.png")
     plt.clf()
     plt.pie(totales, labels=estados, autopct='%1.1f%%')
     plt.title("Distribución de estados")
-    plt.savefig("pastel.png")
+    plt.savefig("static/pastel.png")
     return '''
     <h2>📊 Reportes financieros</h2>
-    <img src="/static/reporte.png" width="400"><br><br>
-    <img src="/static/pastel.png" width="400"><br><br>
-    <a href="/">← Volver</a>
+    /static/reporte.png<br><br>
+    /static/pastel.png<br><br>
+    /← Volver</a>
     '''
 
 @app.route('/recordatorios')
@@ -79,10 +79,10 @@ def recordatorios():
     for c in lista:
         mensaje = f"Hola {c['nombre']}, tu pago de ${c['costo']} por el plan {c['plan']} vence el {c['fecha_pago']}. Gracias por confiar en StarBite."
         enlace = f"https://wa.me/52{c['telefono']}?text={mensaje.replace(' ', '%20')}"
-        html += f"<li>{c['nombre']} - <a href='{enlace}' target='_blank'>Enviar WhatsApp</a></li>"
-    html += "</ul><a href='/'>← Volver</a>"
+        html += f"<li>{c['nombre']} - {enlace}Enviar WhatsApp</a></li>"
+    html += "</ul>/← Volver</a>"
     return html
 
-if _name_=="_main_":
+if _name_ == "_main_":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0",port=port)
+    app.run(host="0.0.0.0", port=port)

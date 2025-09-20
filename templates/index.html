@@ -41,7 +41,10 @@
             <th>Estado</th>
             <th>Acciones</th>
         </tr>
-        {% for i, c in enumerate(clientes) %}
+        {% for c in clientes %}
+    {{ loop.index0 }} - {{ c }}
+{% endfor %}
+
         <tr>
             <td>{{ i }}</td>
             <td>{{ c.nombre }}</td>

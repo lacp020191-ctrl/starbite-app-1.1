@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import os
 
-app = Flask(_name_)
+app=Flask(_name_)
 clientes = []
 
 @app.route('/')

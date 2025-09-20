@@ -1,10 +1,13 @@
 from flask import Flask, render_template, request, redirect, send_file
 import pandas as pd
 from datetime import datetime, timedelta
-import matplotlib.pyplot as plt
 import os
+from urllib.parse import quote
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
-app=Flask (_name_)
+app = Flask(__name__)
 clientes = []
 
 @app.route('/')
@@ -33,7 +36,7 @@ def agregar():
 def cambiar_estado(id):
     estados = ['Pendiente', 'Pagado', 'Desconectado']
     actual = clientes[id]['estado']
-    nuevo = estados[(estados.index(actual)+1)%3]
+    nuevo = estados[(estados.index(actual)+1) % 3]
     clientes[id]['estado'] = nuevo
     return redirect('/')
 
@@ -46,25 +49,31 @@ def eliminar(id):
 def exportar():
     df = pd.DataFrame(clientes)
     df.to_excel("clientes.xlsx", index=False)
-    return send_file("clientes.xlsx", as_attachment=True)
+    return send_file("clientes.xlsx", as_attachment=True, download_name="clientes.xlsx")
 
 @app.route('/reportes')
 def reportes():
     estados = ['Pagado', 'Pendiente', 'Desconectado']
-    totales = [sum(c['costo'] for c in clientes if c['estado']==e) for e in estados]
-    plt.bar(estados, totales, color=['green','orange','red'])
+    totales = [sum(c['costo'] for c in clientes if c['estado'] == e) for e in estados]
+
+    # Gráfico de barras
+    plt.bar(estados, totales, color=['green', 'orange', 'red'])
     plt.title("Reporte financiero")
     plt.ylabel("Monto total")
     plt.savefig("static/reporte.png")
     plt.clf()
+
+    # Gráfico de pastel
     plt.pie(totales, labels=estados, autopct='%1.1f%%')
     plt.title("Distribución de estados")
     plt.savefig("static/pastel.png")
+    plt.clf()
+
     return '''
     <h2>📊 Reportes financieros</h2>
-    /static/reporte.png<br><br>
-    /static/pastel.png<br><br>
-    /← Volver</a>
+    <img src="/static/reporte.png"><br><br>
+    <img src="/static/pastel.png"><br><br>
+    <a href="/">← Volver</a>
     '''
 
 @app.route('/recordatorios')
@@ -73,16 +82,17 @@ def recordatorios():
     lista = []
     for c in clientes:
         fecha = datetime.strptime(c['fecha_pago'], '%Y-%m-%d')
-        if c['estado'] == 'Pendiente' and fecha - hoy <= timedelta(days=3) and fecha - hoy >= timedelta(days=-2):
+        if c['estado'] == 'Pendiente' and timedelta(days=-2) <= (fecha - hoy) <= timedelta(days=3):
             lista.append(c)
+
     html = "<h2>🔔 Recordatorios automáticos</h2><ul>"
     for c in lista:
         mensaje = f"Hola {c['nombre']}, tu pago de ${c['costo']} por el plan {c['plan']} vence el {c['fecha_pago']}. Gracias por confiar en StarBite."
-        enlace = f"https://wa.me/52{c['telefono']}?text={mensaje.replace(' ', '%20')}"
-        html += f"<li>{c['nombre']} - {enlace}Enviar WhatsApp</a></li>"
-    html += "</ul>/← Volver</a>"
+        enlace = f"https://wa.me/52{c['telefono']}?text={quote(mensaje)}"
+        html += f"<li>{c['nombre']} - <a href='{enlace}' target='_blank'>Enviar WhatsApp</a></li>"
+    html += "</ul><a href='/'>← Volver</a>"
     return html
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0",port=port)
+    app.run(host="0.0.0.0", port=port)

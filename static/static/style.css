@@ -1,0 +1,25 @@
+body {
+  background-color: #f3f5f7;
+}
+
+.card {
+  border-radius: 10px;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #e9f3ff;
+}
+
+.btn {
+  border-radius: 6px;
+}
+
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.list-group-item {
+  border-radius: 8px !important;
+  margin-bottom: 8px;
+}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Reportes financieros</h3>
+
+<div class="mb-4">
+  <h5>Totales por estado</h5>
+  <img src="{{ url_for('static', filename='reporte.png') }}" class="img-fluid">
+</div>
+
+<div class="mb-4">
+  <h5>Distribución</h5>
+  <img src="{{ url_for('static', filename='pastel.png') }}" class="img-fluid">
+</div>
+
+{% endblock %}

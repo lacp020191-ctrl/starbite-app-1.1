@@ -3,26 +3,42 @@ from flask_login import login_required
 from models import db
 from auth import auth, login_manager
 
-
 app = Flask(__name__)
 app.config.from_object("config.Config")
 
-# Init DB
 db.init_app(app)
 
-# Init login manager
 login_manager.init_app(app)
 login_manager.login_view = "auth.login"
 
-# Register Blueprint
 app.register_blueprint(auth)
 
 
+# ------------------------------
+# RUTA PRINCIPAL
+# ------------------------------
 @app.route("/")
 @login_required
 def index():
     return render_template("index.html")
 
 
-if __name__ == "__main__":
-    app.run()
+# ------------------------------
+# RUTAS QUE FALTABAN (TEMPORALES)
+# ------------------------------
+@app.route("/recordatorios")
+@login_required
+def recordatorios():
+    return render_template("recordatorios.html")
+
+
+@app.route("/reportes")
+@login_required
+def reportes():
+    return render_template("reportes.html")
+
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    return render_template("dashboard.html")

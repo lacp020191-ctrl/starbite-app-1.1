@@ -1,18 +1,12 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
-from models import User
-from database import db
+from flask import Blueprint, render_template, redirect, url_for, flash, request
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_user, logout_user, login_required, current_user, LoginManager
+from flask_login import login_user, logout_user, login_required
+from models import User, db
 
-auth_bp = Blueprint("auth", __name__)
-login_manager = LoginManager()
-login_manager.login_view = "auth.login"
+auth = Blueprint('auth', __name__)
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
-@auth_bp.route("/login", methods=["GET","POST"])
+# LOGIN
+@auth.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         email = request.form["email"]
@@ -20,41 +14,44 @@ def login():
 
         user = User.query.filter_by(email=email).first()
 
-        if user and check_password_hash(user.password, password):
-            login_user(user)
-            return redirect(url_for("index"))
+        if not user or not check_password_hash(user.password, password):
+            flash("Credenciales incorrectas", "danger")
+            return redirect(url_for("auth.login"))
 
-        flash("Correo o contraseña incorrectos", "danger")
+        login_user(user)
+        return redirect(url_for("index"))
 
     return render_template("login.html")
 
-@auth_bp.route("/register", methods=["GET","POST"])
-@login_required
+
+# REGISTER (SIN login_required)
+@auth.route("/register", methods=["GET", "POST"])
 def register():
-    if current_user.role != "admin":
-        flash("Solo un administrador puede crear usuarios.", "danger")
-        return redirect(url_for("index"))
 
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"]
-        role = request.form["role"]
 
-        if User.query.filter_by(email=email).first():
-            flash("Este correo ya está registrado.", "warning")
+        user = User.query.filter_by(email=email).first()
+        if user:
+            flash("El usuario ya existe", "warning")
             return redirect(url_for("auth.register"))
 
-        hashed = generate_password_hash(password)
-        u = User(email=email, password=hashed, role=role)
-        db.session.add(u)
+        new_user = User(
+            email=email,
+            password=generate_password_hash(password)
+        )
+        db.session.add(new_user)
         db.session.commit()
 
-        flash("Usuario creado correctamente.", "success")
+        flash("Registro exitoso, ahora inicia sesión", "success")
         return redirect(url_for("auth.login"))
 
     return render_template("register.html")
 
-@auth_bp.route("/logout")
+
+# LOGOUT
+@auth.route("/logout")
 @login_required
 def logout():
     logout_user()

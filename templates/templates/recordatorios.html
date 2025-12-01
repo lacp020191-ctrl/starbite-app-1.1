@@ -1,1 +1,0 @@
-{% extends "base.html" %}{% block content %}<h2>Recordatorios de Pago</h2><table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Fecha Pago</th><th>Plan</th></tr></thead><tbody>{% for c in clientes %}<tr><td>{{ c.nombre }}</td><td>{{ c.telefono }}</td><td>{{ c.fecha_pago }}</td><td>{{ c.plan }}</td></tr>{% endfor %}</tbody></table>{% endblock %}

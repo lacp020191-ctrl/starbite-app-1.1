@@ -1,9 +1,17 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, LoginManager
 from models import User, db
 
 auth = Blueprint('auth', __name__)
+login_manager = LoginManager()
+
+
+# Cargar usuario por ID (Requerido por Flask-Login)
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
 
 # LOGIN
 @auth.route("/login", methods=["GET", "POST"])
@@ -24,7 +32,7 @@ def login():
     return render_template("login.html")
 
 
-# REGISTER (SIN login_required)
+# REGISTER (no protegido)
 @auth.route("/register", methods=["GET", "POST"])
 def register():
 
